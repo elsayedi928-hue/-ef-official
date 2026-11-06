@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><title>E&F | Official</title>
+<style>
+:root{--g:#d4af37;--bg:#090909;--p:#151515}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f4eb;font-family:Tahoma,Arial,sans-serif}
+.wrap{width:min(1050px,92%);margin:auto}header{background:#101010;border-bottom:1px solid #3b3018;position:sticky;top:0}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 0}.brand{font-size:28px;font-weight:bold;color:var(--g);letter-spacing:3px}.brand small{display:block;font-size:10px;color:white;text-align:center}
+nav{display:flex;gap:16px}a{color:#f1d77a;text-decoration:none}.hero{text-align:center;padding:65px 0;background:radial-gradient(ellipse at top,#3a2d0d,#090909 70%)}.hero h1{font-size:clamp(38px,8vw,64px);color:#f1d77a;margin:0}.hero p{line-height:1.9;color:#ddd}
+section{padding:32px 0}h2{color:var(--g)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.card,.admin{background:var(--p);border:1px solid #403317;border-radius:12px;overflow:hidden}.card img{width:100%;height:240px;object-fit:cover}.body{padding:14px}.price{color:#f1d77a;font-size:19px;font-weight:bold}.desc,.note{color:#aaa;line-height:1.7;font-size:14px}.empty{padding:24px;border:1px dashed #665323;border-radius:10px;color:#bbb}
+.admin{padding:20px;margin-bottom:35px}input,textarea{width:100%;padding:12px;background:#080808;color:white;border:1px solid #555;border-radius:7px;font:inherit}textarea{min-height:80px}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.field label{display:block;color:#e2c45e;font-size:13px;margin-bottom:6px}button{padding:11px 16px;border:0;border-radius:7px;background:var(--g);font-weight:bold;cursor:pointer}.secondary{background:#444;color:white}.danger{background:#8a2525;color:white}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hidden{display:none!important}.item{display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid #444;padding:12px 0;flex-wrap:wrap}footer{text-align:center;color:#888;border-top:1px solid #333;padding:22px}
+</style></head>
+<body>
+<header><div class="wrap top"><div class="brand">E&F<small>OFFICIAL STORE</small></div><nav><a href="#products">المنتجات</a><a href="#about">من نحن</a><a href="#admin">الإدارة</a></nav></div></header>
+<div class="hero"><div class="wrap"><h1>E&F</h1><p>أناقة بتفاصيل مختلفة<br>اكتشف تشكيلتنا الجديدة</p></div></div>
+<main class="wrap">
+<section id="products"><h2>منتجاتنا</h2><div id="grid" class="grid"><div class="empty">أضف بيانات Firebase لعرض المنتجات.</div></div></section>
+<section id="about"><h2>عن E&F</h2><p class="desc">مرحبًا بك في E&F. تابع أحدث المنتجات والتحديثات من خلال موقعنا الرسمي.</p></section>
+<section id="admin" class="admin"><h2>لوحة تحكم الإدارة</h2>
+<div id="login"><p class="note">تسجيل دخول صاحب الموقع فقط.</p><div class="fields"><div class="field"><label>البريد الإلكتروني</label><input id="email" type="email"></div><div class="field"><label>كلمة المرور</label><input id="password" type="password"></div></div><div class="actions"><button id="loginBtn">تسجيل الدخول</button></div><p id="loginMsg" class="note">بيانات Firebase لم تُضف للملف بعد.</p></div>
+<div id="panel" class="hidden"><p class="note">ارفع الصورة إلى Cloudinary أولًا، ثم الصق رابط الصورة المباشر هنا. الإضافة والتعديل والحذف متاحة لحساب الأدمن فقط.</p>
+<div class="fields"><div class="field"><label>اسم المنتج</label><input id="name" placeholder="مثال: سلسلة ذهبية"></div><div class="field"><label>السعر بالجنيه</label><input id="price" type="number" min="0"></div><div class="field"><label>رابط الصورة من Cloudinary</label><input id="image" type="url" placeholder="https://res.cloudinary.com/..."></div><div class="field"><label>الوصف</label><textarea id="description"></textarea></div></div>
+<div class="actions"><button id="save">إضافة المنتج</button><button class="secondary" id="cancel">إلغاء التعديل</button><button class="secondary" id="logout">تسجيل الخروج</button></div><p id="adminMsg" class="note"></p><div id="items"></div></div>
+</section></main><footer>© <span id="year"></span> E&F. جميع الحقوق محفوظة.</footer>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* استبدل القيم التالية ببيانات تطبيق الويب من Firebase > Project settings > Your apps */
+const firebaseConfig={apiKey:"PASTE_API_KEY_HERE",authDomain:"PASTE_PROJECT_ID.firebaseapp.com",projectId:"PASTE_PROJECT_ID",storageBucket:"PASTE_STORAGE_BUCKET_HERE",messagingSenderId:"PASTE_MESSAGING_SENDER_ID_HERE",appId:"PASTE_APP_ID_HERE"};
+// يجب أن يطابق UID الأدمن المسموح به في Firestore Rules
+const ADMIN_UID="zSTxSIiDtBWsgwV1L6uLHk69qMi1";
+document.getElementById("year").textContent=new Date().getFullYear();
+const configured=firebaseConfig.apiKey!=="PASTE_API_KEY_HERE"&&firebaseConfig.projectId!=="PASTE_PROJECT_ID";
+const $=id=>document.getElementById(id);let db,auth,user=null,products=[],editing=null;
+function msg(id,t,bad=false){$(id).textContent=t;$(id).style.color=bad?"#ff8888":"#e5cf78"}
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function draw(){let list=products.filter(p=>p.type==="product");$("grid").innerHTML=list.length?list.map(p=>`<article class="card">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="${esc(p.name)}" loading="lazy">`:""}<div class="body"><h3>${esc(p.name)}</h3><div class="price">${esc(p.price)} جنيه</div><p class="desc">${esc(p.description||"")}</p></div></article>`).join(""):'<div class="empty">لا توجد منتجات حاليًا.</div>';
+$("items").innerHTML=list.map(p=>`<div class="item"><span>${esc(p.name)} — ${esc(p.price)} جنيه</span><span><button class="secondary" data-edit="${p.id}">تعديل</button> <button class="danger" data-del="${p.id}">حذف</button></span></div>`).join("");
+document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>edit(b.dataset.edit));document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>del(b.dataset.del))}
+function clear(){editing=null;["name","price","image","description"].forEach(id=>$(id).value="");$("save").textContent="إضافة المنتج"}
+function edit(id){let p=products.find(x=>x.id===id);if(!p)return;editing=id;$("name").value=p.name||"";$("price").value=p.price||"";$("image").value=p.imageUrl||"";$("description").value=p.description||"";$("save").textContent="حفظ التعديلات"}
+async function del(id){if(!user||user.uid!==ADMIN_UID||!confirm("تأكيد حذف المنتج؟"))return;try{await db.collection("contents").doc(id).delete();msg("adminMsg","تم الحذف.")}catch(e){msg("adminMsg",e.message,true)}}
+async function save(){if(!user||user.uid!==ADMIN_UID)return msg("adminMsg","غير مصرح.",true);let name=$("name").value.trim(),price=$("price").value.trim(),imageUrl=$("image").value.trim(),description=$("description").value.trim();if(!name||!price||!imageUrl)return msg("adminMsg","اكتب الاسم والسعر ورابط الصورة.",true);if(!/^https:\/\/res\.cloudinary\.com\//i.test(imageUrl))return msg("adminMsg","استخدم رابط صورة Cloudinary المباشر.",true);let d={type:"product",name,price,imageUrl,description,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};try{if(editing)await db.collection("contents").doc(editing).update(d);else{d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection("contents").add(d)}clear();msg("adminMsg","تم الحفظ بنجاح.")}catch(e){msg("adminMsg","تعذر الحفظ: "+e.message,true)}}
+$("save").onclick=save;$("cancel").onclick=clear;$("loginBtn").onclick=async()=>{if(!configured)return msg("loginMsg","بيانات Firebase لم تُضف للملف بعد.",true);try{await auth.signInWithEmailAndPassword($("email").value.trim(),$("password").value)}catch(e){msg("loginMsg","تعذر تسجيل الدخول. راجع البريد وكلمة المرور.",true)}};
+$("logout").onclick=()=>auth.signOut();
+if(configured){firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.firestore();db.collection("contents").onSnapshot(s=>{products=s.docs.map(d=>({id:d.id,...d.data()}));draw()},e=>msg("loginMsg","خطأ في قراءة Firestore: "+e.message,true));auth.onAuthStateChanged(u=>{user=u;if(u&&u.uid===ADMIN_UID){$("login").classList.add("hidden");$("panel").classList.remove("hidden")}else{$("panel").classList.add("hidden");$("login").classList.remove("hidden");if(u){auth.signOut();msg("loginMsg","هذا الحساب ليس حساب الأدمن.",true)}}})}
+</script></body></html>
